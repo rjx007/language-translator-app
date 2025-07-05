@@ -189,7 +189,8 @@
             const sourceLangName = languages.find(lang => lang.code === sourceLang)?.name || sourceLang;
             const targetLangName = languages.find(lang => lang.code === targetLang)?.name || targetLang;
 
-            const prompt = `Translate the following text from ${sourceLangName} to ${targetLangName}:\n\n"${text}"`;
+            // MODIFIED PROMPT: Added instruction to only provide the translated text.
+            const prompt = `Translate the following text from ${sourceLangName} to ${targetLangName}. Provide ONLY the translated text, without any additional commentary, explanations, or conversational phrases:\n\n"${text}"`;
 
             try {
                 translatedTextDiv.textContent = 'Translating...';
@@ -284,4 +285,3 @@
     </script>
 </body>
 </html>
-
