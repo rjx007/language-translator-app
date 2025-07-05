@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #e9ecef;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #6c757d;
+        }
+
+        .btn-translate {
+            background-color: #e74c3c;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+        }
+        .btn-translate:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3);
+        }
+        .btn-copy {
+            background-color: #3498db;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+        }
+        .btn-copy:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+        .btn-speech {
+            background-color: #2ecc71;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
+        }
+        .btn-speech:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-3xl border border-gray-100">
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-10 tracking-tight">Language Translator</h1>
+
+        <div class="flex flex-col md:flex-row gap-8 mb-8">
+            <div class="flex-1">
+                <label for="sourceLanguage" class="block text-gray-700 text-base font-semibold mb-3">Source Language:</label>
+                <select id="sourceLanguage" class="w-full p-3.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out bg-white text-gray-800 shadow-sm text-base">
+                </select>
+                <textarea id="inputText" placeholder="Enter text to translate..."
+                          class="w-full h-48 p-4 mt-4 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out text-gray-800 shadow-sm text-base"
+                          rows="6"></textarea>
+            </div>
+
+            <div class="flex-1">
+                <label for="targetLanguage" class="block text-gray-700 text-base font-semibold mb-3">Target Language:</label>
+                <select id="targetLanguage" class="w-full p-3.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in-out bg-white text-gray-800 shadow-sm text-base">
+                </select>
+                <div id="translatedText"
+                     class="w-full h-48 p-4 mt-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 overflow-y-auto leading-relaxed shadow-sm text-base">
+                    Translated text will appear here...
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-5 mb-6">
+            <button id="translateButton"
+                    class="flex items-center justify-center text-white px-8 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-200 ease-in-out shadow-md btn-translate text-lg font-medium">
+                <i class="fas fa-language mr-2"></i> Translate
+            </button>
+            <button id="copyButton"
+                    class="flex items-center justify-center text-white px-8 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-200 ease-in-out shadow-md btn-copy text-lg font-medium">
+                <i class="fas fa-copy mr-2"></i> Copy
+            </button>
+            <button id="speechButton"
+                    class="flex items-center justify-center text-white px-8 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-200 ease-in-out shadow-md btn-speech text-lg font-medium">
+                <i class="fas fa-volume-up mr-2"></i> Speak
+            </button>
+        </div>
+
+        <div id="messageBox" class="hidden mt-6 p-4 rounded-lg text-center text-base" role="alert"></div>
+    </div>
+
+    <script>
+        const languages = [
+            { code: 'en', name: 'English' },
+            { code: 'es', name: 'Spanish' },
+            { code: 'ml', name: 'Malayalam' },
+            { code: 'hi', name: 'Hindi' },
+            { code: 'ar', name: 'Arabic' },
+            { code: 'zh', name: 'Mandarin Chinese' },
+            { code: 'fr', name: 'French' },
+            { code: 'bn', name: 'Bengali' },
+            { code: 'ru', name: 'Russian' },
+            { code: 'pt', name: 'Portuguese' },
+            { code: 'id', name: 'Indonesian' },
+            { code: 'ur', name: 'Urdu' },
+            { code: 'de', name: 'German' },
+            { code: 'ja', name: 'Japanese' },
+            { code: 'sw', name: 'Swahili' },
+            { code: 'mr', name: 'Marathi' },
+            { code: 'te', name: 'Telugu' },
+            { code: 'tr', name: 'Turkish' },
+            { code: 'ta', name: 'Tamil' },
+            { code: 'vi', name: 'Vietnamese' },
+            { code: 'ko', name: 'Korean' }
+        ];
+
+        const sourceLanguageSelect = document.getElementById('sourceLanguage');
+        const targetLanguageSelect = document.getElementById('targetLanguage');
+        const inputText = document.getElementById('inputText');
+        const translatedTextDiv = document.getElementById('translatedText');
+        const translateButton = document.getElementById('translateButton');
+        const copyButton = document.getElementById('copyButton');
+        const speechButton = document.getElementById('speechButton');
+        const messageBox = document.getElementById('messageBox');
+
+        function populateLanguageSelect(selectElement, defaultCode) {
+            selectElement.innerHTML = '';
+            languages.forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang.code;
+                option.textContent = lang.name;
+                if (lang.code === defaultCode) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            });
+        }
+
+        populateLanguageSelect(sourceLanguageSelect, 'en');
+        populateLanguageSelect(targetLanguageSelect, 'es');
+
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-blue-100', 'text-blue-800');
+
+            switch (type) {
+                case 'success':
+                    messageBox.classList.add('bg-green-100', 'text-green-800');
+                    break;
+                case 'error':
+                    messageBox.classList.add('bg-red-100', 'text-red-800');
+                    break;
+                case 'info':
+                    messageBox.classList.add('bg-blue-100', 'text-blue-800');
+                    break;
+                default:
+                    messageBox.classList.add('bg-gray-100', 'text-gray-800');
+            }
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        async function translateText(text, sourceLang, targetLang) {
+            if (!text.trim()) {
+                showMessage('Please enter text to translate.', 'info');
+                return '';
+            }
+
+            const sourceLangName = languages.find(lang => lang.code === sourceLang)?.name || sourceLang;
+            const targetLangName = languages.find(lang => lang.code === targetLang)?.name || targetLang;
+
+            const prompt = `Translate the following text from ${sourceLangName} to ${targetLangName}:\n\n"${text}"`;
+
+            try {
+                translatedTextDiv.textContent = 'Translating...';
+                translateButton.disabled = true;
+                copyButton.disabled = true;
+                speechButton.disabled = true;
+
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+
+                const apiKey = "AIzaSyCRAWr_aUU-Gtqsae99Fs7NAV8VqPpDlCg"; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const translated = result.candidates[0].content.parts[0].text;
+                    showMessage('Translation successful!', 'success');
+                    return translated;
+                } else {
+                    showMessage('Translation failed: Could not get a valid response from the API.', 'error');
+                    console.error('API response structure unexpected:', result);
+                    return 'Error: Could not translate.';
+                }
+            } catch (error) {
+                showMessage('Translation failed: ' + error.message, 'error');
+                console.error('Error during translation:', error);
+                return 'Error: Translation failed.';
+            } finally {
+                translateButton.disabled = false;
+                copyButton.disabled = false;
+                speechButton.disabled = false;
+            }
+        }
+
+        translateButton.addEventListener('click', async () => {
+            const text = inputText.value;
+            const sourceLang = sourceLanguageSelect.value;
+            const targetLang = targetLanguageSelect.value;
+
+            const translated = await translateText(text, sourceLang, targetLang);
+            translatedTextDiv.textContent = translated;
+        });
+
+        copyButton.addEventListener('click', () => {
+            const textToCopy = translatedTextDiv.textContent;
+            if (textToCopy && textToCopy !== 'Translated text will appear here...' && !textToCopy.startsWith('Translating...')) {
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showMessage('Copied to clipboard!', 'success');
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    showMessage('Failed to copy text.', 'error');
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            } else {
+                showMessage('Nothing to copy.', 'info');
+            }
+        });
+
+        speechButton.addEventListener('click', () => {
+            const textToSpeak = translatedTextDiv.textContent;
+            const targetLang = targetLanguageSelect.value;
+
+            if (textToSpeak && textToSpeak !== 'Translated text will appear here...' && !textToSpeak.startsWith('Translating...')) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.lang = targetLang;
+                    window.speechSynthesis.speak(utterance);
+                    showMessage('Speaking translated text...', 'info');
+                } else {
+                    showMessage('Text-to-speech not supported in this browser.', 'error');
+                }
+            } else {
+                showMessage('No translated text to speak.', 'info');
+            }
+        });
+    </script>
+</body>
+</html>
+
